@@ -368,7 +368,14 @@ class SmartIRClimate(ClimateEntity, RestoreEntity):
                 target_temperature = '{0:g}'.format(self._target_temperature)
 
                 if operation_mode.lower() == HVAC_MODE_OFF:
-                    await self._controller.send(self._commands['off'])
+                    if self.last_on_operation == HVAC_MODE_COOL and 'off_cool' in self._commands:
+                        await self._controller.send(self._commands['off_cool'])
+                    elif self.last_on_operation == HVAC_MODE_HEAT and 'off_heat' in self._commands:
+                        await self._controller.send(self._commands['off_heat'])
+                    elif self.last_on_operation == HVAC_MODE_FAN_ONLY and 'off_fan' in self._commands:
+                        await self._controller.send(self._commands['off_fan'])
+                    else:
+                        await self._controller.send(self._commands['off'])
                     return
 
                 if 'on' in self._commands:
